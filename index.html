@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f5">
+  <title>Uzor — rides made easy</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211d;
+      --muted: #77817c;
+      --line: #e8ebe8;
+      --paper: #fff;
+      --canvas: #f6f7f5;
+      --green: #b6f36b;
+      --green-dark: #284522;
+      --shadow: 0 16px 48px rgba(32, 45, 37, .1);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; color: var(--ink); background: var(--canvas); }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .topbar {
+      height: 76px; padding: 0 5.2%; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line); position: relative; z-index: 2;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 780; letter-spacing: -1.2px; }
+    .brand-mark { width: 31px; height: 31px; border-radius: 11px; display: grid; place-items: center; background: var(--green); }
+    .brand-mark svg { width: 18px; height: 18px; }
+    .nav { display: flex; align-items: center; gap: 34px; }
+    .nav a { text-decoration: none; color: #64706a; font-size: 13px; font-weight: 600; }
+    .nav a:hover { color: var(--ink); }
+    .profile { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 650; }
+    .avatar { width: 35px; height: 35px; border-radius: 50%; display: grid; place-items: center; color: #394835; background: #e4edda; font-size: 12px; }
+    .layout { max-width: 1440px; min-height: calc(100vh - 76px); margin: 0 auto; padding: 28px 5.2%; display: grid; grid-template-columns: 390px minmax(0, 1fr); gap: 24px; }
+    .booking { align-self: start; padding: 26px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); box-shadow: 0 5px 22px rgba(32,45,37,.035); }
+    .eyebrow { margin: 0 0 10px; color: #768178; font-size: 11px; font-weight: 750; letter-spacing: 1.5px; text-transform: uppercase; }
+    h1 { margin: 0; font-size: 30px; letter-spacing: -1.5px; line-height: 1.13; }
+    .intro { margin: 9px 0 25px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .location-fields { position: relative; display: grid; gap: 10px; }
+    .location-fields::before { content: ""; position: absolute; width: 1px; border-left: 1px dashed #cbd1cb; top: 43px; bottom: 43px; left: 16px; }
+    .field { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .field-icon { position: relative; z-index: 1; width: 11px; height: 11px; margin: 0 3px; border: 3px solid #6d9470; border-radius: 50%; background: white; }
+    .field.destination .field-icon { width: 11px; height: 11px; border: 0; border-radius: 3px; background: #27382e; transform: rotate(45deg); }
+    .field-content { min-width: 0; flex: 1; }
+    .field label { display: block; margin-bottom: 3px; color: #89928d; font-size: 10px; font-weight: 650; }
+    .field input { width: 100%; padding: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 13px; font-weight: 620; }
+    .field input::placeholder { color: #a2aaa5; font-weight: 450; }
+    .icon-button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 9px; color: #64706a; background: transparent; cursor: pointer; }
+    .icon-button:hover { background: #f2f4f1; }
+    .icon-button svg { width: 16px; height: 16px; }
+    .location-message { min-height: 16px; margin: 8px 0 0 4px; color: #7b857e; font-size: 11px; }
+    .quick-label { margin: 17px 0 9px; color: #858e88; font-size: 11px; font-weight: 650; }
+    .quick-destinations { display: flex; gap: 7px; flex-wrap: wrap; }
+    .quick-destinations button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 20px; color: #59645d; background: white; font-size: 11px; cursor: pointer; }
+    .quick-destinations button:hover { border-color: #b7c3b4; background: #f7faf4; }
+    .primary { width: 100%; height: 48px; margin-top: 20px; border: 0; border-radius: 12px; color: #1c2b19; background: var(--green); font-size: 13px; font-weight: 750; cursor: pointer; transition: background .18s, transform .18s; }
+    .primary:hover { background: #a9e85e; transform: translateY(-1px); }
+    .primary:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .section-heading { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 10px; font-size: 13px; font-weight: 730; }
+    .section-heading span:last-child { color: var(--muted); font-size: 11px; font-weight: 550; }
+    .ride-options { display: grid; gap: 8px; }
+    .ride-option { display: flex; align-items: center; gap: 11px; padding: 10px; border: 1px solid var(--line); border-radius: 13px; background: white; cursor: pointer; }
+    .ride-option.selected { border-color: #718e65; background: #f7faf4; box-shadow: 0 0 0 1px #718e65; }
+    .car-icon { width: 45px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: #f2f4f0; font-size: 21px; }
+    .ride-info { min-width: 0; flex: 1; }
+    .ride-name { font-size: 12px; font-weight: 740; }
+    .ride-detail { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .ride-price { text-align: right; font-size: 12px; font-weight: 750; }
+    .ride-price small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; font-weight: 500; }
+    .status-card { display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 14px; border: 1px solid #dfe9d8; border-radius: 13px; background: #f6faf2; }
+    .status-dot { flex: 0 0 auto; width: 9px; height: 9px; margin-top: 4px; border-radius: 50%; background: #80ae68; box-shadow: 0 0 0 4px #e4f0dc; }
+    .status-card strong { display: block; font-size: 12px; }
+    .status-card p { margin: 4px 0 0; color: #657160; font-size: 11px; line-height: 1.45; }
+    .secondary { width: 100%; height: 40px; margin-top: 11px; border: 1px solid var(--line); border-radius: 10px; background: white; font-size: 12px; font-weight: 650; cursor: pointer; }
+    .secondary:hover { background: #f7f8f6; }
+    .map-panel { position: relative; min-height: 650px; overflow: hidden; border: 1px solid #e6e9e4; border-radius: 22px; background: #eaf0e8; box-shadow: var(--shadow); }
+    .map { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .map-controls { position: absolute; top: 18px; right: 18px; display: grid; gap: 8px; }
+    .map-control { width: 39px; height: 39px; display: grid; place-items: center; border: 1px solid #e6e9e4; border-radius: 12px; background: white; box-shadow: 0 3px 12px rgba(36,49,39,.08); cursor: pointer; }
+    .map-control svg { width: 17px; height: 17px; }
+    .map-label { position: absolute; color: #778278; font-size: 11px; font-weight: 620; letter-spacing: .2px; pointer-events: none; }
+    .map-label.small { font-size: 9px; color: #89948a; font-weight: 550; }
+    .route-line { fill: none; stroke: #fff; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+    .route-color { fill: none; stroke: #263d2b; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 0; }
+    .marker { position: absolute; display: grid; place-items: center; width: 32px; height: 32px; border: 4px solid white; border-radius: 50% 50% 50% 4px; background: #b5f169; box-shadow: 0 5px 12px rgba(25,41,27,.2); transform: rotate(-45deg); }
+    .marker span { width: 7px; height: 7px; border-radius: 50%; background: #29432a; }
+    .marker.pickup { left: 27%; top: 56%; }
+    .marker.dropoff { left: 67%; top: 31%; background: #273a2c; }
+    .marker.dropoff span { background: white; }
+    .map-tag { position: absolute; padding: 8px 11px; border: 1px solid rgba(230,233,228,.9); border-radius: 9px; background: white; box-shadow: 0 5px 15px rgba(36,49,39,.08); font-size: 10px; font-weight: 680; }
+    .pickup-tag { left: calc(27% + 24px); top: calc(56% + 2px); }
+    .dropoff-tag { left: calc(67% + 24px); top: calc(31% + 2px); }
+    .map-caption { position: absolute; left: 20px; bottom: 18px; display: flex; align-items: center; gap: 9px; padding: 10px 13px; border: 1px solid rgba(230,233,228,.9); border-radius: 11px; background: rgba(255,255,255,.94); font-size: 11px; font-weight: 650; box-shadow: 0 4px 14px rgba(36,49,39,.07); }
+    .caption-dot { width: 7px; height: 7px; border-radius: 50%; background: #79a762; }
+    .toast { position: fixed; left: 50%; bottom: 24px; z-index: 5; padding: 12px 17px; border-radius: 12px; color: white; background: #26342b; box-shadow: var(--shadow); font-size: 12px; opacity: 0; transform: translate(-50%, 12px); transition: opacity .2s, transform .2s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .hidden { display: none !important; }
+    @media (max-width: 850px) {
+      .topbar { height: 66px; padding: 0 20px; }
+      .nav { gap: 16px; }
+      .nav a:nth-child(2) { display: none; }
+      .layout { min-height: calc(100vh - 66px); padding: 18px; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .booking { order: 2; }
+      .map-panel { order: 1; min-height: 360px; }
+    }
+    @media (max-width: 520px) {
+      .topbar { padding: 0 16px; }
+      .nav a { display: none; }
+      .profile > span { display: none; }
+      .layout { padding: 12px; }
+      .booking { padding: 22px 18px; border-radius: 18px; }
+      .map-panel { min-height: 300px; border-radius: 18px; }
+      .map-label { font-size: 9px; }
+      .pickup-tag, .dropoff-tag { font-size: 9px; }
+      .marker.pickup { left: 20%; }
+      .pickup-tag { left: calc(20% + 23px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 15.5 7 9h10l2 6.5M4.5 15.5h15v3h-15zM8 18.5v1M16 18.5v1M8 12.5h8" stroke="#263b24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      Uzor
+    </div>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#ride">Ride</a><a href="#ride">Drive with us</a><a href="#ride">Help</a>
+    </nav>
+    <div class="profile"><span>Good evening, Alex</span><div class="avatar" aria-label="Alex's profile">AL</div></div>
+  </header>
+
+  <main class="layout" id="ride">
+    <section class="booking" aria-labelledby="page-title">
+      <p class="eyebrow">Your city, your way</p>
+      <h1 id="page-title">Where to<br>today?</h1>
+      <p class="intro">A great ride is just around the corner. Set your trip and we’ll take it from here.</p>
+
+      <form id="ride-form">
+        <div class="location-fields">
+          <div class="field">
+            <span class="field-icon" aria-hidden="true"></span>
+            <div class="field-content">
+              <label for="pickup">PICKUP</label>
+              <input id="pickup" name="pickup" value="Current location" autocomplete="street-address">
+            </div>
+            <button type="button" class="icon-button" id="locate" aria-label="Use my current location" title="Use my current location">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="field destination">
+            <span class="field-icon" aria-hidden="true"></span>
+            <div class="field-content">
+              <label for="destination">DROP-OFF</label>
+              <input id="destination" name="destination" placeholder="Where are you going?" autocomplete="off" required>
+            </div>
+            <button type="button" class="icon-button" id="clear-destination" aria-label="Clear destination" title="Clear destination">
+              <svg viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="location-message" id="location-message" aria-live="polite"></p>
+        <p class="quick-label">Popular nearby</p>
+        <div class="quick-destinations" aria-label="Popular destinations">
+          <button type="button" data-place="City Airport">✈ Airport</button>
+          <button type="button" data-place="Downtown">Downtown</button>
+          <button type="button" data-place="Central Station">Central station</button>
+        </div>
+        <div id="ride-results" class="hidden">
+          <div class="section-heading"><span>Choose your ride</span><span>Prices are estimates</span></div>
+          <div class="ride-options" role="radiogroup" aria-label="Ride type">
+            <div class="ride-option selected" role="radio" aria-checked="true" tabindex="0" data-ride="Uzor Go" data-price="18.40">
+              <div class="car-icon" aria-hidden="true">🚗</div><div class="ride-info"><div class="ride-name">Uzor Go</div><div class="ride-detail">4 seats · Affordable</div></div><div class="ride-price">R18.40<small>4 min away</small></div>
+            </div>
+            <div class="ride-option" role="radio" aria-checked="false" tabindex="0" data-ride="Uzor Comfort" data-price="26.80">
+              <div class="car-icon" aria-hidden="true">🚙</div><div class="ride-info"><div class="ride-name">Uzor Comfort</div><div class="ride-detail">4 seats · Extra legroom</div></div><div class="ride-price">R26.80<small>6 min away</small></div>
+            </div>
+            <div class="ride-option" role="radio" aria-checked="false" tabindex="0" data-ride="Uzor XL" data-price="32.50">
+              <div class="car-icon" aria-hidden="true">🚐</div><div class="ride-info"><div class="ride-name">Uzor XL</div><div class="ride-detail">6 seats · Room for everyone</div></div><div class="ride-price">R32.50<small>8 min away</small></div>
+            </div>
+          </div>
+        </div>
+        <button class="primary" type="submit" id="submit-ride">Find a ride</button>
+      </form>
+
+      <div id="trip-status" class="hidden" aria-live="polite">
+        <div class="status-card"><span class="status-dot"></span><div><strong id="status-title">Your ride is on its way</strong><p id="status-detail"></p></div></div>
+        <button type="button" class="secondary" id="cancel-ride">Cancel ride</button>
+      </div>
+    </section>
+
+    <section class="map-panel" aria-label="Map showing your ride route">
+      <svg class="map" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated city map with a route">
+        <rect width="900" height="700" fill="#eaf0e8"/>
+        <path d="M0 94 280 0h150L0 178zM588 0h192L0 262v-42zM900 87 0 396v-39L900 48zM900 260 0 570v-42L900 218zM900 430 115 700H0v-14L900 388z" fill="#f3f5ef"/>
+        <path d="M47 0 900 580M0 146 900 638M211 0 0 700M504 0 300 700M810 0 595 700M0 510 900 205" stroke="#dce4da" stroke-width="2" fill="none"/>
+        <path d="M-50 325C130 284 203 318 313 281s172-60 259-24 179 41 378-21M319-30c-7 153 38 205 18 287s-49 199-11 478" stroke="#d1dfd0" stroke-width="25" fill="none"/>
+        <path d="M-50 325C130 284 203 318 313 281s172-60 259-24 179 41 378-21M319-30c-7 153 38 205 18 287s-49 199-11 478" stroke="#e9f0e5" stroke-width="17" fill="none"/>
+        <path d="M610 400c-35-88 31-180 112-174 75 5 142 76 129 151-11 65-77 108-150 96-45-7-74-30-91-73Z" fill="#d5e7cc"/>
+        <path d="M635 396c-22-58 20-124 78-120 58 4 105 53 94 105-9 47-53 77-105 70-32-4-55-20-67-55Z" fill="#c6dfba"/>
+        <path d="M80 80h104v72H80zM390 89h84v90h-84zM555 101h94v60h-94zM170 395h100v76H170zM380 450h93v80h-93zM480 557h84v70h-84zM92 543h92v62H92zM750 515h83v65h-83z" fill="#e2e8de"/>
+        <path d="M112 87h44v26h-44zM408 107h47v28h-47zM575 111h46v20h-46zM195 416h47v25h-47zM402 472h43v27h-43z" fill="#d7e0d5"/>
+        <path class="route-line" d="M257 405C306 391 319 357 352 341s52-2 82-33 42-69 82-76 53 7 93-20"/>
+        <path class="route-color" d="M257 405C306 391 319 357 352 341s52-2 82-33 42-69 82-76 53 7 93-20"/>
+        <circle cx="431" cy="308" r="5" fill="#fff"/><circle cx="516" cy="236" r="5" fill="#fff"/>
+        <g fill="#78877a" font-family="system-ui, sans-serif" font-size="12" font-weight="600">
+          <text x="118" y="215">MARKET STREET</text><text x="423" y="390" transform="rotate(-72 423 390)">OAK AVENUE</text>
+          <text x="672" y="188">RIVERSIDE PARK</text><text x="90" y="488">OLD TOWN</text><text x="474" y="607">EAST DISTRICT</text>
+        </g>
+      </svg>
+      <span class="map-label small" style="left:12%;top:26%">MARKET STREET</span>
+      <span class="map-label small" style="left:46%;top:61%;transform:rotate(-70deg)">OAK AVENUE</span>
+      <span class="map-label" style="left:73%;top:22%">Riverside Park</span>
+      <span class="map-label" style="left:10%;top:72%">Old Town</span>
+      <span class="map-label" style="left:55%;top:85%">East District</span>
+      <div class="marker pickup" aria-hidden="true"><span></span></div>
+      <div class="marker dropoff" aria-hidden="true"><span></span></div>
+      <div class="map-tag pickup-tag">Your pickup</div>
+      <div class="map-tag dropoff-tag">Your destination</div>
+      <div class="map-controls">
+        <button class="map-control" id="zoom-in" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <button class="map-control" id="zoom-out" type="button" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="map-caption"><span class="caption-dot"></span><span id="map-caption-text">Ready when you are</span></div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const form = document.getElementById("ride-form");
+    const destinationInput = document.getElementById("destination");
+    const pickupInput = document.getElementById("pickup");
+    const results = document.getElementById("ride-results");
+    const submitButton = document.getElementById("submit-ride");
+    const tripStatus = document.getElementById("trip-status");
+    const toast = document.getElementById("toast");
+    const message = document.getElementById("location-message");
+    let selectedRide = document.querySelector(".ride-option.selected");
+    let toastTimer;
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function setDestination(place) {
+      destinationInput.value = place;
+      destinationInput.dispatchEvent(new Event("input", { bubbles: true }));
+      form.requestSubmit();
+    }
+
+    document.querySelectorAll("[data-place]").forEach((button) => {
+      button.addEventListener("click", () => setDestination(button.dataset.place));
+    });
+
+    document.getElementById("clear-destination").addEventListener("click", () => {
+      destinationInput.value = "";
+      destinationInput.focus();
+      results.classList.add("hidden");
+      submitButton.textContent = "Find a ride";
+    });
+
+    document.getElementById("locate").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        message.textContent = "Location isn't available in this browser. Enter your pickup instead.";
+        return;
+      }
+      message.textContent = "Finding your location…";
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          pickupInput.value = "Your current location";
+          message.textContent = "Pickup set to your current location.";
+        },
+        () => {
+          message.textContent = "We couldn't access your location. You can enter your pickup instead.";
+        },
+        { timeout: 8000, maximumAge: 60000 }
+      );
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!destinationInput.value.trim()) {
+        destinationInput.setCustomValidity("Please enter a destination.");
+        destinationInput.reportValidity();
+        destinationInput.addEventListener("input", () => destinationInput.setCustomValidity(""), { once: true });
+        return;
+      }
+      destinationInput.setCustomValidity("");
+      if (results.classList.contains("hidden")) {
+        results.classList.remove("hidden");
+        submitButton.textContent = `Request ${selectedRide.dataset.ride} · R${selectedRide.dataset.price}`;
+        document.getElementById("map-caption-text").textContent = `Route to ${destinationInput.value.trim()}`;
+        return;
+      }
+      const destination = destinationInput.value.trim();
+      document.getElementById("status-title").textContent = "Your ride is confirmed";
+      document.getElementById("status-detail").textContent = `${selectedRide.dataset.ride} · R${selectedRide.dataset.price} · Heading to ${destination}. Your driver is 4 minutes away.`;
+      tripStatus.classList.remove("hidden");
+      form.classList.add("hidden");
+      document.getElementById("map-caption-text").textContent = "Your ride is confirmed";
+      showToast("Ride confirmed — your driver is on the way!");
+    });
+
+    function chooseRide(option) {
+      document.querySelectorAll(".ride-option").forEach((item) => {
+        const isSelected = item === option;
+        item.classList.toggle("selected", isSelected);
+        item.setAttribute("aria-checked", String(isSelected));
+      });
+      selectedRide = option;
+      submitButton.textContent = `Request ${selectedRide.dataset.ride} · R${selectedRide.dataset.price}`;
+    }
+    document.querySelectorAll(".ride-option").forEach((option) => {
+      option.addEventListener("click", () => chooseRide(option));
+      option.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          chooseRide(option);
+        }
+      });
+    });
+
+    document.getElementById("cancel-ride").addEventListener("click", () => {
+      tripStatus.classList.add("hidden");
+      form.classList.remove("hidden");
+      results.classList.remove("hidden");
+      submitButton.textContent = `Request ${selectedRide.dataset.ride} · R${selectedRide.dataset.price}`;
+      document.getElementById("map-caption-text").textContent = `Route to ${destinationInput.value.trim()}`;
+      showToast("Your ride has been cancelled.");
+    });
+
+    document.getElementById("zoom-in").addEventListener("click", () => showToast("Map preview is at its closest zoom."));
+    document.getElementById("zoom-out").addEventListener("click", () => showToast("Map preview is at its widest zoom."));
+  </script>
+</body>
+</html>
