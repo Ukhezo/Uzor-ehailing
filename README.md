@@ -14,6 +14,8 @@ A responsive ride-hailing booking page, built with plain HTML, CSS and JavaScrip
 - **Live route map:** the map shows the pickup, destination and route once a trip is set.
 - **Ride confirmation:** a trip status card and toast message confirm the booking, and the ride can be cancelled.
 - **Form validation:** the destination is required, with a friendly message if it's left empty.
+- **Driver and help panels:** “Drive with us” and “Help” open accessible pop-up panels (native `<dialog>`, closes with Esc or a click outside).
+- **Personal greeting:** says good morning, afternoon or evening based on the time of day.
 - **Responsive:** the layout switches to a single column on tablets and phones, with the map on top.
 - **Accessible:** ride options work as a keyboard-friendly radio group with ARIA labels.
 
@@ -21,7 +23,7 @@ A responsive ride-hailing booking page, built with plain HTML, CSS and JavaScrip
 
 - HTML5
 - CSS3 (custom properties, Grid, Flexbox, media queries)
-- Vanilla JavaScript (DOM events, form validation, Geolocation API)
+- Vanilla JavaScript (DOM events, form validation, Geolocation API, `<dialog>`)
 
 No frameworks, build tools or dependencies.
 

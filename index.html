@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f6f7f5">
   <title>Uzor — rides made easy</title>
+  <meta name="description" content="Uzor is a responsive ride-hailing booking page: set a pickup and drop-off, compare ride types and prices in rands, and confirm or cancel a trip. Built with HTML, CSS and JavaScript.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%23b6f36b'/%3E%3Cpath d='M9 19.5 11 13h10l2 6.5M8.5 19.5h15v3h-15zM12 22.5v1M20 22.5v1M12 16.5h8' stroke='%23263b24' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Uzor — rides made easy">
+  <meta property="og:description" content="Book a ride in a few taps: pick a destination, choose Uzor Go, Comfort or XL, and confirm your trip.">
+  <meta property="og:url" content="https://ukhezo.github.io/Uzor-ehailing/">
+  <meta property="og:image" content="https://ukhezo.github.io/Uzor-ehailing/images/screenshot.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <style>
     :root {
       color-scheme: light;
@@ -96,20 +104,32 @@
     .dropoff-tag { left: calc(67% + 24px); top: calc(31% + 2px); }
     .map-caption { position: absolute; left: 20px; bottom: 18px; display: flex; align-items: center; gap: 9px; padding: 10px 13px; border: 1px solid rgba(230,233,228,.9); border-radius: 11px; background: rgba(255,255,255,.94); font-size: 11px; font-weight: 650; box-shadow: 0 4px 14px rgba(36,49,39,.07); }
     .caption-dot { width: 7px; height: 7px; border-radius: 50%; background: #79a762; }
+    .info-dialog { width: min(440px, calc(100vw - 32px)); padding: 28px; border: 0; border-radius: 22px; color: var(--ink); box-shadow: var(--shadow); }
+    .info-dialog::backdrop { background: rgba(23, 33, 29, .35); }
+    .info-dialog h2 { margin: 0; font-size: 24px; letter-spacing: -1px; }
+    .dialog-intro { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .dialog-list { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+    .dialog-list li { display: grid; gap: 3px; font-size: 13px; }
+    .dialog-list span { color: var(--muted); line-height: 1.5; }
+    .dialog-close { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; background: #fff; font-size: 20px; line-height: 1; cursor: pointer; }
+    .dialog-close:hover { background: #f4f6f3; }
     .toast { position: fixed; left: 50%; bottom: 24px; z-index: 5; padding: 12px 17px; border-radius: 12px; color: white; background: #26342b; box-shadow: var(--shadow); font-size: 12px; opacity: 0; transform: translate(-50%, 12px); transition: opacity .2s, transform .2s; pointer-events: none; }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     .hidden { display: none !important; }
     @media (max-width: 850px) {
       .topbar { height: 66px; padding: 0 20px; }
       .nav { gap: 16px; }
-      .nav a:nth-child(2) { display: none; }
       .layout { min-height: calc(100vh - 66px); padding: 18px; grid-template-columns: minmax(0, 1fr); gap: 16px; }
       .booking { order: 2; }
       .map-panel { order: 1; min-height: 360px; }
     }
     @media (max-width: 520px) {
       .topbar { padding: 0 16px; }
-      .nav a { display: none; }
+      .nav { gap: 14px; }
+      .nav a:first-child { display: none; }
+      .nav a { font-size: 12px; }
+      .map-controls { top: 12px; right: auto; left: 12px; }
+      .map-control { width: 34px; height: 34px; border-radius: 10px; }
       .profile > span { display: none; }
       .layout { padding: 12px; }
       .booking { padding: 22px 18px; border-radius: 18px; }
@@ -130,9 +150,9 @@
       Uzor
     </div>
     <nav class="nav" aria-label="Main navigation">
-      <a href="#ride">Ride</a><a href="#ride">Drive with us</a><a href="#ride">Help</a>
+      <a href="#ride" id="nav-ride">Ride</a><a href="#drive" data-dialog="drive-dialog">Drive with us</a><a href="#help" data-dialog="help-dialog">Help</a>
     </nav>
-    <div class="profile"><span>Good evening, Alex</span><div class="avatar" aria-label="Alex's profile">AL</div></div>
+    <div class="profile"><span id="greeting">Hello, Alex</span><div class="avatar" aria-label="Alex's profile">AL</div></div>
   </header>
 
   <main class="layout" id="ride">
@@ -208,10 +228,6 @@
         <path class="route-line" d="M257 405C306 391 319 357 352 341s52-2 82-33 42-69 82-76 53 7 93-20"/>
         <path class="route-color" d="M257 405C306 391 319 357 352 341s52-2 82-33 42-69 82-76 53 7 93-20"/>
         <circle cx="431" cy="308" r="5" fill="#fff"/><circle cx="516" cy="236" r="5" fill="#fff"/>
-        <g fill="#78877a" font-family="system-ui, sans-serif" font-size="12" font-weight="600">
-          <text x="118" y="215">MARKET STREET</text><text x="423" y="390" transform="rotate(-72 423 390)">OAK AVENUE</text>
-          <text x="672" y="188">RIVERSIDE PARK</text><text x="90" y="488">OLD TOWN</text><text x="474" y="607">EAST DISTRICT</text>
-        </g>
       </svg>
       <span class="map-label small" style="left:12%;top:26%">MARKET STREET</span>
       <span class="map-label small" style="left:46%;top:61%;transform:rotate(-70deg)">OAK AVENUE</span>
@@ -229,6 +245,29 @@
       <div class="map-caption"><span class="caption-dot"></span><span id="map-caption-text">Ready when you are</span></div>
     </section>
   </main>
+  <dialog class="info-dialog" id="drive-dialog" aria-labelledby="drive-title">
+    <button class="dialog-close" type="button" aria-label="Close">&times;</button>
+    <p class="eyebrow">Drive with Uzor</p>
+    <h2 id="drive-title">Earn on your own schedule</h2>
+    <p class="dialog-intro">Drive when it suits you and keep more of every fare.</p>
+    <ul class="dialog-list">
+      <li><b>Flexible hours</b><span>Go online whenever you like — no shifts, no minimum hours.</span></li>
+      <li><b>Weekly payouts</b><span>Earnings are paid straight into your bank account every week.</span></li>
+      <li><b>What you need</b><span>A valid driver's licence and PrDP, a 2012 or newer 4-door car, and a clear criminal record check.</span></li>
+    </ul>
+    <button class="primary" type="button" data-toast="Thanks! We'll be in touch about driving with Uzor.">Register interest</button>
+  </dialog>
+  <dialog class="info-dialog" id="help-dialog" aria-labelledby="help-title">
+    <button class="dialog-close" type="button" aria-label="Close">&times;</button>
+    <p class="eyebrow">Help centre</p>
+    <h2 id="help-title">How can we help?</h2>
+    <ul class="dialog-list">
+      <li><b>How is my fare worked out?</b><span>Prices shown are estimates based on distance, time and ride type. You'll see the final fare when your trip ends.</span></li>
+      <li><b>Can I cancel a ride?</b><span>Yes. Tap “Cancel ride” on the trip card. Cancelling within 2 minutes of booking is free.</span></li>
+      <li><b>Is my trip safe?</b><span>Every driver is screened, and you can share your trip with a friend from the trip card.</span></li>
+    </ul>
+    <button class="secondary" type="button" data-toast="A support agent will contact you shortly.">Contact support</button>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -339,6 +378,26 @@
 
     document.getElementById("zoom-in").addEventListener("click", () => showToast("Map preview is at its closest zoom."));
     document.getElementById("zoom-out").addEventListener("click", () => showToast("Map preview is at its widest zoom."));
+    const hour = new Date().getHours();
+    document.getElementById("greeting").textContent = `${hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"}, Alex`;
+
+    document.querySelectorAll("[data-dialog]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        document.getElementById(link.dataset.dialog).showModal();
+      });
+    });
+    document.querySelectorAll(".info-dialog").forEach((dialog) => {
+      dialog.querySelector(".dialog-close").addEventListener("click", () => dialog.close());
+      dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+      dialog.querySelectorAll("[data-toast]").forEach((button) => {
+        button.addEventListener("click", () => { dialog.close(); showToast(button.dataset.toast); });
+      });
+    });
+    document.getElementById("nav-ride").addEventListener("click", (event) => {
+      event.preventDefault();
+      destinationInput.focus();
+    });
   </script>
 </body>
 </html>
